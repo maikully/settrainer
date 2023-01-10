@@ -80,13 +80,13 @@ class CardDisplay extends React.Component {
           <ResponsiveSetCard
             value={this.state.cardOne}
             width={200}
-            background={lightGreen[100]}
+            background={"#FFFDD0"}
             active={false}
           />
           <ResponsiveSetCard
             value={this.state.cardTwo}
             width={200}
-            background={lightGreen[100]}
+            background={"#FFFDD0"}
             active={false}
           />
         </animated.div>
@@ -170,7 +170,7 @@ class CardDisplay extends React.Component {
                 (this.state.number - 1).toString()
               }
               width={200}
-              background={lightGreen[100]}
+              background={"#FFFDD0"}
               active={false}
             />
           )}
