@@ -7,7 +7,7 @@ App link: https://maikully.github.io/settrainer/
 
 The website shows the user two cards and gives them five options. To progress, the user selects the card that completes a set with the first two.
 
-Thanks to [Lucia Tian](luciatian.org) for the symbol SVGs and [setwithfriends](https://github.com/ekzhang/setwithfriends) for the code to get started!
+Thanks to [Lucia Tian](https://luciatian.org) for the symbol SVGs and [setwithfriends](https://github.com/ekzhang/setwithfriends) for the code to get started!
 
 ## Local Installation
 
