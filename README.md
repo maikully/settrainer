@@ -20,6 +20,10 @@ npm i
 npm start
 ```
 
+## Known Bugs
+
+On Safari, sometimes striped symbols don't appear properly.
+
 ### Todo:
 
 - [ ] add difficulty levels
