@@ -72,15 +72,12 @@ function ResponsiveSymbol (props) {
   const finalCoords = coords
   switch (props.shade) {
     case 0:
-        console.log(0)
         var fill = color
         break
     case 1:
-        console.log(1)
         var fill = "transparent"
         break
     case 2:
-        console.log(2)
         var fill = 'url(#' + props.shade.toString() + props.color.toString() + ')'
         break
     default:

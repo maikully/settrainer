@@ -23,24 +23,80 @@ function generateCards () {
   }
   return deck
 }
+/** Returns the unique card c such that {a, b, c} form a set. */
+function conjugateCard (a, b) {
+  const zeroCode = '0'.charCodeAt(0)
+  let c = ''
+  for (let i = 0; i < 4; i++) {
+    const sum = a.charCodeAt(i) - zeroCode + b.charCodeAt(i) - zeroCode
+    const lastNum = (3 - (sum % 3)) % 3
+    c += String.fromCharCode(zeroCode + lastNum)
+  }
+  return c
+}
+
+function getOptions (shuffledArray) {
+  var cardOne = shuffledArray[0]
+  var cardTwo = shuffledArray[1]
+  var answer = conjugateCard(cardOne, cardTwo)
+  var options = []
+  options.push(answer)
+  for (let x = 2; x < shuffledArray.length; x++) {
+    if (shuffledArray[x] !== answer) {
+      options.push(shuffledArray[x])
+      if (options.length === 5) {
+        return options.sort((a, b) => 0.5 - Math.random())
+      }
+    }
+  }
+}
 class CardDisplay extends React.Component {
   constructor (props) {
     super(props)
     const array = generateCards()
     const shuffledArray = array.sort((a, b) => 0.5 - Math.random())
+    var cardOne = shuffledArray[0]
+    var cardTwo = shuffledArray[1]
+    var options = getOptions(shuffledArray)
+    var answer = conjugateCard(cardOne, cardTwo)
     this.state = {
       number: 0,
       shape: 0,
       shade: 0,
       color: 0,
+      answer: answer,
       cardArray: array,
       shuffledArray: shuffledArray,
       cardOne: shuffledArray[0],
       cardTwo: shuffledArray[1],
-      message: ""
+      options: options,
+      message: '',
+      streak: 0
     }
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.checkSet = this.checkSet.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleSelection = this.handleSelection.bind(this)
+    this.checkSet = this.checkSet.bind(this)
+  }
+  resetBoard = () => {
+    const shuffledArray = this.state.cardArray.sort(
+      (a, b) => 0.5 - Math.random()
+    )
+    var cardOne = shuffledArray[0]
+    var cardTwo = shuffledArray[1]
+    var options = getOptions(shuffledArray)
+    var answer = conjugateCard(cardOne, cardTwo)
+    this.setState({
+      shuffledArray: shuffledArray
+    })
+    this.setState({ cardOne: this.state.shuffledArray[0] })
+    this.setState({ cardTwo: this.state.shuffledArray[1] })
+    this.setState({ number: 0 })
+    this.setState({ shape: 0 })
+    this.setState({ color: 0 })
+    this.setState({ shade: 0 })
+    this.setState({ options: options })
+    this.setState({ answer: answer })
+    this.setState({ streak: this.state.streak + 1 })
   }
   handleSubmit = () => {
     var selected =
@@ -49,49 +105,63 @@ class CardDisplay extends React.Component {
       (this.state.shade - 1).toString() +
       (this.state.number - 1).toString()
     if (this.checkSet(selected, this.state.cardOne, this.state.cardTwo)) {
-        this.setState({message: "Good job!"})
-        this.setState({shuffledArray: this.state.cardArray.sort((a, b) => 0.5 - Math.random())})
-        this.setState({cardOne: this.state.shuffledArray[0]})
-        this.setState({cardTwo: this.state.shuffledArray[1]})
-        this.setState({number:0})
-        this.setState({shape:0})
-        this.setState({color:0})
-        this.setState({shade:0})
+      this.setState({ message: 'Good job!' })
+      this.resetBoard()
     } else {
-        this.setState({message: "Try again!"})
-
+      this.setState({ streak: 0 })
+      this.setState({ message: 'Try again!' })
     }
   }
-  checkSet(a, b, c) {
+  handleSelection (card) {
+    console.log(card)
+    if (this.checkSet(card, this.state.cardOne, this.state.cardTwo)) {
+      this.setState({ message: 'Good job!' })
+      this.resetBoard()
+    } else {
+        this.setState({ streak: 0 })
+      this.setState({ message: 'Try again!' })
+    }
+  }
+  checkSet (a, b, c) {
     for (let i = 0; i < 4; i++) {
-      if ((a.charAt(i) + b.charAt(i) + c.charAt(i)) % 3 !== 0)
-        return false;
+      if ((a.charAt(i) + b.charAt(i) + c.charAt(i)) % 3 !== 0) return false
     }
-    return true;
+    return true
   }
-  
+
   render () {
     return (
       <span>
-      <div>
-        <h4>what card completes the set?</h4>
-      </div>
+        <div>
+          <h4>which card completes the set?</h4>
+        </div>
         <animated.div>
           <ResponsiveSetCard
             value={this.state.cardOne}
             width={200}
-            background={"#FFFDD0"}
+            background={'#FFFDD0'}
             active={false}
           />
           <ResponsiveSetCard
             value={this.state.cardTwo}
             width={200}
-            background={"#FFFDD0"}
+            background={'#FFFDD0'}
             active={false}
           />
         </animated.div>
-      <br></br>
+        <br></br>
         <span style={{ display: 'flex' }}>
+          {this.state.options.map((card, idx) => (
+            <Button onClick={() => this.handleSelection(card)}>
+              <ResponsiveSetCard
+                id={idx}
+                value={card}
+                width={200}
+                background={'#FFFDD0'}
+              />
+            </Button>
+          ))}
+          {/*
           <FormControl fullWidth>
             <InputLabel id='demo-simple-select-label'>Number</InputLabel>
             <Select
@@ -156,8 +226,10 @@ class CardDisplay extends React.Component {
               <MenuItem value={3}>diamond(s)</MenuItem>
             </Select>
           </FormControl>
+            */}
         </span>
         <br></br>
+        {/*
         {this.state.number !== 0 &&
           this.state.shade !== 0 &&
           this.state.color !== 0 &&
@@ -170,7 +242,7 @@ class CardDisplay extends React.Component {
                 (this.state.number - 1).toString()
               }
               width={200}
-              background={"#FFFDD0"}
+              background={'#FFFDD0'}
               active={false}
             />
           )}
@@ -178,8 +250,10 @@ class CardDisplay extends React.Component {
         <Button variant='text' onClick={this.handleSubmit}>
           Submit
         </Button>
+            */}
         <p>{this.state.message}</p>
-        {/* 
+        {this.state.streak !== 0 && <p>streak: {this.state.streak}</p>}
+        {/*
         {this.state.cardArray.map((card, idx) => (
           <animated.div
             key={card}
