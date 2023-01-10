@@ -59,6 +59,18 @@ class CardDisplay extends React.Component {
     var cardTwo = shuffledArray[1]
     var options = getOptions(shuffledArray)
     var answer = conjugateCard(cardOne, cardTwo)
+    let cardWidth
+    if (window.screen.width < 500) {
+        cardWidth = window.screen.width / 3
+
+    }
+    else {
+
+        cardWidth = window.screen.width / 10
+    }
+
+    console.log(cardWidth)
+    
     this.state = {
       number: 0,
       shape: 0,
@@ -70,8 +82,9 @@ class CardDisplay extends React.Component {
       cardOne: shuffledArray[0],
       cardTwo: shuffledArray[1],
       options: options,
-      message: '',
-      streak: 0
+      message: 'select a card!',
+      streak: 0,
+      cardWidth: cardWidth
     }
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSelection = this.handleSelection.bind(this)
@@ -118,7 +131,7 @@ class CardDisplay extends React.Component {
       this.setState({ message: 'Good job!' })
       this.resetBoard()
     } else {
-        this.setState({ streak: 0 })
+      this.setState({ streak: 0 })
       this.setState({ message: 'Try again!' })
     }
   }
@@ -132,31 +145,31 @@ class CardDisplay extends React.Component {
   render () {
     return (
       <span>
-        <div>
-          <h4>which card completes the set?</h4>
-        </div>
         <animated.div>
           <ResponsiveSetCard
             value={this.state.cardOne}
-            width={200}
+            width={this.state.cardWidth}
             background={'#FFFDD0'}
             active={false}
           />
           <ResponsiveSetCard
             value={this.state.cardTwo}
-            width={200}
+            width={this.state.cardWidth}
             background={'#FFFDD0'}
             active={false}
           />
         </animated.div>
         <br></br>
-        <span style={{ display: 'flex' }}>
+        <div>
+          <h4>which card completes the set?</h4>
+        </div>
+        <span style={{ display: 'flex', width: window.screen.width, justifyContent: "center", flexWrap: "wrap" }}>
           {this.state.options.map((card, idx) => (
             <Button onClick={() => this.handleSelection(card)}>
               <ResponsiveSetCard
                 id={idx}
                 value={card}
-                width={200}
+                width={this.state.cardWidth}
                 background={'#FFFDD0'}
               />
             </Button>
@@ -251,8 +264,8 @@ class CardDisplay extends React.Component {
           Submit
         </Button>
             */}
-        <p>{this.state.message}</p>
-        {this.state.streak !== 0 && <p>streak: {this.state.streak}</p>}
+          <p>{this.state.message}</p>
+          <p style={{fontFamily:'monospace', fontSize:"20px"}}>streak: {this.state.streak}</p>
         {/*
         {this.state.cardArray.map((card, idx) => (
           <animated.div

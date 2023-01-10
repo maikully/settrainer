@@ -78,7 +78,8 @@ function ResponsiveSymbol (props) {
         var fill = "transparent"
         break
     case 2:
-        var fill = 'url(#' + props.shade.toString() + props.color.toString() + ')'
+        var fill = 'url(#' + props.color.toString() + props.shade.toString() + ')'
+        //var fill = color
         break
     default:
       break
@@ -94,7 +95,7 @@ function ResponsiveSymbol (props) {
     >
       <defs>
         <pattern
-          id={props.shade.toString() + props.color.toString()}
+          id={"a"}
           patternUnits='userSpaceOnUse'
           width='4'
           height='4'
@@ -102,10 +103,13 @@ function ResponsiveSymbol (props) {
           <path d="M-1,1 l2,-2
                M0,4 l4,-4
                M3,5 l2,-2"
-            stroke={color}
-            strokeWidth='2'
+            stroke={"black"}
+            strokeWidth='1px'
           />
         </pattern>{' '}
+        <pattern id={props.color.toString() + props.shade.toString()} patternUnits="userSpaceOnUse" width="10" height="25" patternTransform="rotate(45)">
+			<line x1="0" y="0" x2="100" y2="0" stroke={color} stroke-width="20" />
+		</pattern>
         <path id={props.shape} class='cls-1' d={finalCoords} />
       </defs>
       <use
