@@ -150,9 +150,9 @@ class BlitzMode extends React.Component {
     var answer = conjugateCard(cardOne, cardTwo)
     let cardWidth
     if (window.screen.width < 500) {
-      cardWidth = window.screen.width / 3
+      cardWidth = window.screen.width / 3 + 40
     } else {
-      cardWidth = window.screen.width / 10
+      cardWidth = window.screen.width / 10 + 40
     }
 
     this.state = {
@@ -209,13 +209,16 @@ class BlitzMode extends React.Component {
   }
   endGame = () => {
     this.setState({ status: 'waiting' })
-    if (this.state.scores.length === 0 || this.state.count > this.state.scores[0]) {
+    if (
+      this.state.scores.length === 0 ||
+      this.state.count > this.state.scores[0]
+    ) {
       this.setState({ isShowingAlert: true })
       setTimeout(() => {
         this.setState({
           isShowingAlert: false
-        });
-      }, 2000);
+        })
+      }, 2000)
     }
     this.setState({
       scores: [...this.state.scores, this.state.count].sort((a, b) => b - a)
@@ -345,7 +348,7 @@ class BlitzMode extends React.Component {
               className={`alert alert-success ${
                 this.state.isShowingAlert ? 'alert-shown' : 'alert-hidden'
               }`}
-              style={{position:"absolute",right:"10%",top:"20%"}}
+              style={{ position: 'absolute', right: '10%', top: '20%' }}
             >
               <strong>New high score!</strong>
             </div>
@@ -374,7 +377,7 @@ class BlitzMode extends React.Component {
                 width:
                   window.screen.width <= 500
                     ? window.screen.width
-                    : window.screen.width / 1.75,
+                    : window.screen.width / 1.65,
                 justifyContent: 'center',
                 flexWrap: 'wrap'
               }}
@@ -384,8 +387,8 @@ class BlitzMode extends React.Component {
                   style={{
                     flex:
                       window.screen.width <= 500
-                        ? '1 0 calc(35% - 10px)'
-                        : '1 0 calc(20% - 10px)'
+                        ? '1 0 calc(40% - 0px)'
+                        : '1 0 calc(20% - 0px)'
                   }}
                   onClick={() => this.handleSelection(card)}
                   disabled={
