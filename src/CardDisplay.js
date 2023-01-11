@@ -139,12 +139,12 @@ class CardDisplay extends React.Component {
     this.setState({ settingsOpen: !this.state.settingsOpen })
   }
   handleSettingsChange (x, e) {
-    if (x === 0) {
+    if (x === 0 && parseInt(e.target.value) > 0 && parseInt(e.target.value) <= 15) {
       this.setState(
         { numberDisplay: parseInt(e.target.value) },
         this.resetBoard
       )
-    } else if (x === 1) {
+    } else if (x === 1 && parseInt(e.target.value) > 0 && parseInt(e.target.value) <= 4) {
       this.setState({ difficulty: parseInt(e.target.value) }, this.resetBoard)
     }
   }
@@ -202,8 +202,8 @@ class CardDisplay extends React.Component {
               <TextField
                 id='outlined-number'
                 type='number'
-                inputProps={{ inputmode: 'numeric', pattern: '[1-4]*' }}
                 value={this.state.numberDisplay}
+                InputProps={{ inputProps: { min: 1, max: 15 } }}
                 onChange={e => this.handleSettingsChange(0, e)}
                 InputLabelProps={{
                   shrink: true
