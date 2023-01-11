@@ -12,7 +12,7 @@ import {
   Typography,
   TextField,
   Backdrop,
-  Fade,
+  Fade
 } from '@material-ui/core'
 import React, { useState, useRef, useEffect } from 'react'
 import { checkSet, conjugateCard, generateCards, match } from './functions'
@@ -175,7 +175,7 @@ class Blitz extends React.Component {
       scores: [],
       status: 'inactive',
       onSwitch: 0,
-      lockout: false,
+      lockout: false
     }
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSettingsOpen = this.handleSettingsOpen.bind(this)
@@ -226,22 +226,25 @@ class Blitz extends React.Component {
     }
   }
   handleSelection (card) {
-    if (this.state.status === "active") {
-        if (checkSet(card, this.state.cardOne, this.state.cardTwo)) {
-          this.setState({ message: 'Good job!' })
-          if (this.state.count % 9 === 0 && this.state.count !== 0 && this.state.difficulty < 4) {
-            this.setState({difficulty: this.state.difficulty + 1})
-          }
-
-          this.setState({ count: this.state.count + 1 })
-          this.resetBoard()
-        } else {
-          this.setState({ streak: 0 })
-          this.setState({ message: 'Try again!' })
-          this.setState({lockout: true})
-          setTimeout(() => this.setState({lockout: false}), 1100)
+    if (this.state.status === 'active') {
+      if (checkSet(card, this.state.cardOne, this.state.cardTwo)) {
+        this.setState({ message: 'Good job!' })
+        if (
+          this.state.count % 9 === 0 &&
+          this.state.count !== 0 &&
+          this.state.difficulty < 4
+        ) {
+          this.setState({ difficulty: this.state.difficulty + 1 })
         }
 
+        this.setState({ count: this.state.count + 1 })
+        this.resetBoard()
+      } else {
+        this.setState({ streak: 0 })
+        this.setState({ message: 'Try again!' })
+        this.setState({ lockout: true })
+        setTimeout(() => this.setState({ lockout: false }), 1100)
+      }
     }
   }
   handleSettingsOpen () {
@@ -300,7 +303,7 @@ class Blitz extends React.Component {
               >
                 High Scores
               </Typography>
-              <ol style={{color:'white'}}>
+              <ol style={{ color: 'white' }}>
                 {this.state.scores.length > 0 &&
                   this.state.scores
                     .sort((a, b) => b - a)
@@ -367,13 +370,19 @@ class Blitz extends React.Component {
                         : '1 0 calc(20% - 10px)'
                   }}
                   onClick={() => this.handleSelection(card)}
-                  disabled={this.state.lockout}
+                  disabled={
+                    this.state.lockout || this.state.status === 'waiting'
+                  }
                 >
                   <ResponsiveSetCard
                     id={1 + idx}
                     value={card}
                     width={this.state.cardWidth}
-                    background={this.state.lockout ? '#cccaa1' : '#FFFDD0'}
+                    background={
+                      this.state.lockout || this.state.status === 'waiting'
+                        ? '#cccaa1'
+                        : '#FFFDD0'
+                    }
                   />
                 </Button>
               ))}
