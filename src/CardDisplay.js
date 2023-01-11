@@ -216,7 +216,7 @@ class CardDisplay extends React.Component {
                 id='modal-modal-description'
                 sx={{ mt: 2 }}
               >
-                Difficulty of options:{' '}
+                Difficulty (1-4) of options:{' '}
               </Typography>
               <TextField
                 id='outlined-number'

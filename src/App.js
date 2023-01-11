@@ -6,7 +6,7 @@ import { lightTheme } from './themes'
 import { ThemeProvider } from '@material-ui/core/styles'
 import ReactGA from "react-ga4";
 
-ReactGA.initialize('G-FZQGHMXF1K');
+ReactGA.initialize('G-1MEGVYSVYW');
 ReactGA.send("pageview");
 function App () {
   return (
