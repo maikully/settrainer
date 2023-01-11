@@ -39,7 +39,7 @@ function getOptions (shuffledArray, n, d) {
   }
   if (options.length < n) {
     for (let x = 2; x < shuffledArray.length && options.length < n; x++) {
-      if (!options.includes(shuffledArray[x])) {
+      if (!options.includes(shuffledArray[x]) && (match(shuffledArray[x], answer) >= d - 2)) {
         options.push(shuffledArray[x])
       }
     }
