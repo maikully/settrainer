@@ -57,9 +57,9 @@ class PracticeMode extends React.Component {
     var answer = conjugateCard(cardOne, cardTwo)
     let cardWidth
     if (window.screen.width < 500) {
-      cardWidth = window.screen.width / 3
+      cardWidth = window.screen.width / 3 + 40
     } else {
-      cardWidth = window.screen.width / 10
+      cardWidth = window.screen.width / 10 + 40
     }
 
     this.state = {
@@ -177,6 +177,7 @@ class PracticeMode extends React.Component {
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
                 width: 400,
+                maxWidth: window.screen.width - 100,
                 bgcolor: 'background.paper',
                 border: '2px solid #000',
                 boxShadow: 24,
@@ -257,7 +258,7 @@ class PracticeMode extends React.Component {
             width:
               window.screen.width <= 500
                 ? window.screen.width
-                : window.screen.width / 1.75,
+                : window.screen.width / 1.65,
             justifyContent: 'center',
             flexWrap: 'wrap'
           }}
@@ -267,8 +268,8 @@ class PracticeMode extends React.Component {
               style={{
                 flex:
                   window.screen.width <= 500
-                    ? '1 0 calc(35% - 10px)'
-                    : '1 0 calc(20% - 10px)'
+                    ? '1 0 calc(40% - 0px)'
+                    : '1 0 calc(20% - 0px)'
               }}
               onClick={() => this.handleSelection(card)}
             >

@@ -299,6 +299,7 @@ class BlitzMode extends React.Component {
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
                 width: 400,
+                maxWidth: window.screen.width - 100,
                 bgcolor: 'background.paper',
                 border: '2px solid #000',
                 boxShadow: 24,
