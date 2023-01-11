@@ -92,8 +92,8 @@ function ResponsiveSymbol (props) {
       strokeWidth={26}
     >
       <defs>
-        <pattern id={props.id.toString() + props.color.toString() + props.shade.toString() + props.shape.toString()} patternUnits="userSpaceOnUse" width="10" height="30" patternTransform="rotate(45)">
-			<line x1="0" y="0" x2="100" y2="0" stroke={color} strokeWidth="20" />
+        <pattern id={props.id.toString() + props.color.toString() + props.shade.toString() + props.shape.toString()} patternUnits="userSpaceOnUse" width="10" height="40" patternTransform="rotate()">
+			<line x1="0" y="0" x2="100" y2="0" stroke={color} strokeWidth="30" />
 		</pattern>
         <path id={props.shape} className='cls-1' d={finalCoords} />
       </defs>
