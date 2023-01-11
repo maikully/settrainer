@@ -203,7 +203,7 @@ class CardDisplay extends React.Component {
                 id='outlined-number'
                 type='number'
                 value={this.state.numberDisplay}
-                InputProps={{ inputProps: { min: 1, max: 15 } }}
+                InputProps={{ inputProps: { min: 2, max: 15 } }}
                 onChange={e => this.handleSettingsChange(0, e)}
                 InputLabelProps={{
                   shrink: true
