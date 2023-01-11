@@ -20,9 +20,8 @@ import { checkSet, conjugateCard, generateCards, match } from './functions'
 function getDeadTime () {
   let deadline = new Date()
 
-  // This is where you need to adjust if
-  // you entend to add more time
-  deadline.setSeconds(deadline.getSeconds() + 60)
+  // adjust timer here
+  deadline.setSeconds(deadline.getSeconds() + 3)
   return deadline
 }
 function getOptions (shuffledArray, n, d) {
@@ -53,7 +52,7 @@ function getOptions (shuffledArray, n, d) {
   }
   return options.sort((a, b) => 0.5 - Math.random())
 }
-class Blitz extends React.Component {
+class BlitzMode extends React.Component {
   timer = ({ onSwitch }) => {
     // We need ref in this, because we are dealing
     // with JS setInterval to keep track of it and
@@ -175,7 +174,8 @@ class Blitz extends React.Component {
       scores: [],
       status: 'inactive',
       onSwitch: 0,
-      lockout: false
+      lockout: false,
+      isShowingAlert: false
     }
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSettingsOpen = this.handleSettingsOpen.bind(this)
@@ -209,7 +209,17 @@ class Blitz extends React.Component {
   }
   endGame = () => {
     this.setState({ status: 'waiting' })
-    this.setState({ scores: [...this.state.scores, this.state.count] })
+    if (this.state.scores.length === 0 || this.state.count > this.state.scores[0]) {
+      this.setState({ isShowingAlert: true })
+      setTimeout(() => {
+        this.setState({
+          isShowingAlert: false
+        });
+      }, 2000);
+    }
+    this.setState({
+      scores: [...this.state.scores, this.state.count].sort((a, b) => b - a)
+    })
   }
 
   handleSubmit = () => {
@@ -306,7 +316,6 @@ class Blitz extends React.Component {
               <ol style={{ color: 'white' }}>
                 {this.state.scores.length > 0 &&
                   this.state.scores
-                    .sort((a, b) => b - a)
                     .slice(0, 5)
                     .map((score, idx) => <li>{score}</li>)}
               </ol>
@@ -315,7 +324,7 @@ class Blitz extends React.Component {
         </Modal>
         {this.state.status === 'inactive' && (
           <div>
-            <h3>You will have 1 minute to find as many sets as you can.</h3>
+            <h3>You have 1 minute to find as many sets as you can.</h3>
             <h4>Every 10 sets, the difficulty will increase.</h4>
             <Button
               variant='contained'
@@ -331,6 +340,14 @@ class Blitz extends React.Component {
         {(this.state.status === 'active' ||
           this.state.status === 'waiting') && (
           <>
+            <div
+              className={`alert alert-success ${
+                this.state.isShowingAlert ? 'alert-shown' : 'alert-hidden'
+              }`}
+              style={{position:"absolute",right:"10%",top:"20%"}}
+            >
+              <strong>New high score!</strong>
+            </div>
             <this.timer onSwitch={this.state.onSwitch}></this.timer>
             <animated.div>
               <ResponsiveSetCard
@@ -412,4 +429,4 @@ class Blitz extends React.Component {
   }
 }
 
-export default Blitz
+export default BlitzMode

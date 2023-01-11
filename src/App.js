@@ -1,7 +1,7 @@
 import logo from './logo.svg'
 import './App.css'
-import CardDisplay from './CardDisplay'
-import Blitz from './Blitz'
+import PracticeMode from './PracticeMode'
+import BlitzMode from './BlitzMode'
 import { lightTheme } from './themes'
 import { ThemeProvider } from '@material-ui/core/styles'
 import ReactGA from 'react-ga4'
@@ -40,8 +40,8 @@ function App () {
               </Button>
             </div>
           )}
-          {mode === 1 && <CardDisplay />}
-          {mode === 2 && <Blitz />}
+          {mode === 1 && <PracticeMode />}
+          {mode === 2 && <BlitzMode />}
         </header>
       </div>
     </ThemeProvider>

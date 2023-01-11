@@ -22,8 +22,14 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}.alert-shown {
+  opacity: 1;
+  transition: all 250ms linear;
 }
-
+.alert-hidden {
+  opacity: 0;
+  transition: all 250ms linear 2s;
+}
 .App-link {
   color: #61dafb;
 }

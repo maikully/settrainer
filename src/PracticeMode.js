@@ -46,7 +46,7 @@ function getOptions (shuffledArray, n, d) {
   }
   return options.sort((a, b) => 0.5 - Math.random())
 }
-class CardDisplay extends React.Component {
+class PracticeMode extends React.Component {
   constructor (props) {
     super(props)
     const array = generateCards()
@@ -399,4 +399,4 @@ class CardDisplay extends React.Component {
   }
 }
 
-export default CardDisplay
+export default PracticeMode
