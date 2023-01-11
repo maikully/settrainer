@@ -30,3 +30,5 @@ On Safari, sometimes striped symbols don't appear properly.
 - [ ] add timer
 - [ ] add high scores
 - [ ] add multiplayer
+- [ ] best pivot card
+- [ ] only one set in 6 cards

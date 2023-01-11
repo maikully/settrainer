@@ -1,6 +1,7 @@
 import { memo } from 'react'
 
 import { makeStyles, useTheme } from '@material-ui/core/styles'
+import { diamondCoords, ovalCoords, squiggleCoords } from './functions'
 import clsx from 'clsx'
 
 const useStyles = makeStyles(theme => ({
@@ -53,18 +54,15 @@ function ResponsiveSymbol (props) {
   switch (props.shape) {
     // squiggle
     case 0:
-      coords =
-        'm474.32,715.48c-40.86,82.93-335.32,167.06-401.42-76.92-30.3-111.83,8.08-162.81,40.84-217.51,17.14-28.62,27.53-60.8,30-94.07,7.02-94.82-26.74-127.6-44.3-138.13-4.21-2.52-8.85-4.24-13.65-5.29-18.04-3.91-96.38-25.43-60.09-99.04C66.55,1.59,361.01-82.54,427.11,161.44c30.3,111.82-8.07,162.79-40.84,217.49-17.14,28.62-27.54,60.81-30.01,94.08-7.02,94.82,26.73,127.6,44.29,138.13,4.22,2.52,8.86,4.25,13.65,5.29,18.04,3.91,96.38,25.43,60.1,99.06Z'
+      coords = squiggleCoords
       break
     // oval
     case 1:
-      coords =
-        'm449.5,193v414.5c0,106.31-86.19,192.5-192.5,192.5s-192.5-86.19-192.5-192.5V193C64.5,86.69,150.69.5,257,.5s192.5,86.19,192.5,192.5Z'
+      coords = ovalCoords
       break
     // diamond
     case 2:
-      coords =
-      "m250,705.87L65.82,375l.27-.49L250,44.13l.87,1.57,183.31,329.3-.27.49-183.91,330.38Z"
+      coords = diamondCoords
       break
     default:
       break

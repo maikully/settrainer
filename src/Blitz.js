@@ -14,8 +14,95 @@ import {
   Backdrop,
   Fade
 } from '@material-ui/core'
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { checkSet, conjugateCard, generateCards, match } from './functions'
+const Timer = () => {
+  // We need ref in this, because we are dealing
+  // with JS setInterval to keep track of it and
+  // stop it when needed
+  const Ref = useRef(null)
+
+  // The state for our timer
+  const [timer, setTimer] = useState('00:00:00')
+
+  const getTimeRemaining = e => {
+    const total = Date.parse(e) - Date.parse(new Date())
+    const seconds = Math.floor((total / 1000) % 60)
+    const minutes = Math.floor((total / 1000 / 60) % 60)
+    const hours = Math.floor((total / 1000 / 60 / 60) % 24)
+    return {
+      total,
+      hours,
+      minutes,
+      seconds
+    }
+  }
+
+  const startTimer = e => {
+    let { total, hours, minutes, seconds } = getTimeRemaining(e)
+    if (total >= 0) {
+      // update the timer
+      // check if less than 10 then we need to
+      // add '0' at the beginning of the variable
+      setTimer(
+        (hours > 9 ? hours : '0' + hours) +
+          ':' +
+          (minutes > 9 ? minutes : '0' + minutes) +
+          ':' +
+          (seconds > 9 ? seconds : '0' + seconds)
+      )
+    }
+  }
+
+  const clearTimer = e => {
+    // If you adjust it you should also need to
+    // adjust the Endtime formula we are about
+    // to code next
+    setTimer('00:01:00')
+
+    // If you try to remove this line the
+    // updating of timer Variable will be
+    // after 1000ms or 1sec
+    if (Ref.current) clearInterval(Ref.current)
+    const id = setInterval(() => {
+      startTimer(e)
+    }, 1000)
+    Ref.current = id
+  }
+
+  const getDeadTime = () => {
+    let deadline = new Date()
+
+    // This is where you need to adjust if
+    // you entend to add more time
+    deadline.setMinutes(deadline.getMinutes() + 1)
+    return deadline
+  }
+
+  // We can use useEffect so that when the component
+  // mount the timer will start as soon as possible
+
+  // We put empty array to act as componentDid
+  // mount only
+  useEffect(() => {
+    clearTimer(getDeadTime())
+  }, [])
+
+  // Another way to call the clearTimer() to start
+  // the countdown is via action event from the
+  // button first we create function to be called
+  // by the button
+  const onClickReset = () => {
+    clearTimer(getDeadTime())
+  }
+
+  return (
+    <div>
+      <h2>{timer}</h2>
+      <button onClick={onClickReset}>Reset</button>
+    </div>
+  )
+}
 
 function getOptions (shuffledArray, n, d) {
   console.log(n)
@@ -46,7 +133,7 @@ function getOptions (shuffledArray, n, d) {
   }
   return options.sort((a, b) => 0.5 - Math.random())
 }
-class CardDisplay extends React.Component {
+class Blitz extends React.Component {
   constructor (props) {
     super(props)
     const array = generateCards()
@@ -73,12 +160,12 @@ class CardDisplay extends React.Component {
       cardOne: shuffledArray[0],
       cardTwo: shuffledArray[1],
       options: options,
-      message: 'select a card!',
-      streak: 0,
+      count: 0,
       cardWidth: cardWidth,
       numberDisplay: 5,
       settingsOpen: false,
-      difficulty: 1
+      difficulty: 1,
+      scores: []
     }
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSettingsOpen = this.handleSettingsOpen.bind(this)
@@ -109,7 +196,9 @@ class CardDisplay extends React.Component {
     this.setState({ shade: 0 })
     this.setState({ options: options })
     this.setState({ answer: answer })
+    this.setState({ count: this.state.count + 1 })
   }
+
   handleSubmit = () => {
     var selected =
       (this.state.color - 1).toString() +
@@ -120,7 +209,6 @@ class CardDisplay extends React.Component {
       this.setState({ message: 'Good job!' })
       this.resetBoard()
     } else {
-      this.setState({ streak: 0 })
       this.setState({ message: 'Try again!' })
     }
   }
@@ -128,7 +216,6 @@ class CardDisplay extends React.Component {
     console.log(card)
     if (checkSet(card, this.state.cardOne, this.state.cardTwo)) {
       this.setState({ message: 'Good job!' })
-      this.setState({ streak: this.state.streak + 1 })
       this.resetBoard()
     } else {
       this.setState({ streak: 0 })
@@ -156,7 +243,7 @@ class CardDisplay extends React.Component {
           style={{ position: 'absolute', right: '5%', top: '2%' }}
           onClick={this.handleSettingsOpen}
         >
-          Settings
+          High Scores
         </Button>
         <Modal
           aria-labelledby='transition-modal-title'
@@ -189,48 +276,17 @@ class CardDisplay extends React.Component {
                 component='h2'
                 style={{ color: 'white' }}
               >
-                Settings
+                High Scores
               </Typography>
-              <br></br>
-              <Typography
-                style={{ color: 'white' }}
-                id='modal-modal-description'
-                sx={{ mt: 2 }}
-              >
-                Number of options to display:{' '}
-              </Typography>
-              <TextField
-                id='outlined-number'
-                type='number'
-                inputProps={{ inputmode: 'numeric', pattern: '[1-4]*' }}
-                value={this.state.numberDisplay}
-                onChange={e => this.handleSettingsChange(0, e)}
-                InputLabelProps={{
-                  shrink: true
-                }}
-              />
-              <br></br>
-              <br></br>
-              <Typography
-                style={{ color: 'white' }}
-                id='modal-modal-description'
-                sx={{ mt: 2 }}
-              >
-                Difficulty of options:{' '}
-              </Typography>
-              <TextField
-                id='outlined-number'
-                type='number'
-                InputProps={{ inputProps: { min: 1, max: 4 } }}
-                value={this.state.difficulty}
-                onChange={e => this.handleSettingsChange(1, e)}
-                InputLabelProps={{
-                  shrink: true
-                }}
-              />
+              <ol>
+                {this.state.scores.length > 0 && this.state.scores.sort((a,b) => b-a).slice(0, 5).map((score, idx) => (
+                  <li>{score}</li>
+                ))}
+              </ol>
             </Box>
           </Fade>
         </Modal>
+        <Timer></Timer>
         <animated.div>
           <ResponsiveSetCard
             id={0}
@@ -248,9 +304,7 @@ class CardDisplay extends React.Component {
           />
         </animated.div>
         <br></br>
-        <div>
-          <h4>which card completes the set?</h4>
-        </div>
+        <br></br>
         <span
           style={{
             display: 'flex',
@@ -280,123 +334,14 @@ class CardDisplay extends React.Component {
               />
             </Button>
           ))}
-          {/*
-          <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>Number</InputLabel>
-            <Select
-              labelId='demo-simple-select-label'
-              id='demo-simple-select'
-              value={this.state.number}
-              label='Number'
-              onChange={event => {
-                this.setState({ number: event.target.value })
-              }}
-            >
-              <MenuItem value={1}>1</MenuItem>
-              <MenuItem value={2}>2</MenuItem>
-              <MenuItem value={3}>3</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>Shading</InputLabel>
-            <Select
-              labelId='demo-simple-select-label'
-              id='demo-simple-select'
-              value={this.state.shade}
-              label='Shading'
-              onChange={event => {
-                this.setState({ shade: event.target.value })
-              }}
-            >
-              <MenuItem value={1}>filled</MenuItem>
-              <MenuItem value={2}>empty</MenuItem>
-              <MenuItem value={3}>striped</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>Color</InputLabel>
-            <Select
-              labelId='demo-simple-select-label'
-              id='demo-simple-select'
-              value={this.state.color}
-              label='Color'
-              onChange={event => {
-                this.setState({ color: event.target.value })
-              }}
-            >
-              <MenuItem value={1}>purple</MenuItem>
-              <MenuItem value={2}>green</MenuItem>
-              <MenuItem value={3}>red</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>Shape</InputLabel>
-            <Select
-              labelId='demo-simple-select-label'
-              id='demo-simple-select'
-              value={this.state.shape}
-              label='Shape'
-              onChange={event => {
-                this.setState({ shape: event.target.value })
-              }}
-            >
-              <MenuItem value={1}>squiggle(s)</MenuItem>
-              <MenuItem value={2}>oval(s)</MenuItem>
-              <MenuItem value={3}>diamond(s)</MenuItem>
-            </Select>
-          </FormControl>
-            */}
         </span>
         <br></br>
-        {/*
-        {this.state.number !== 0 &&
-          this.state.shade !== 0 &&
-          this.state.color !== 0 &&
-          this.state.shape !== 0 && (
-            <ResponsiveSetCard
-              value={
-                (this.state.color - 1).toString() +
-                (this.state.shape - 1).toString() +
-                (this.state.shade - 1).toString() +
-                (this.state.number - 1).toString()
-              }
-              width={200}
-              background={'#FFFDD0'}
-              active={false}
-            />
-          )}
-        <br></br>
-        <Button variant='text' onClick={this.handleSubmit}>
-          Submit
-        </Button>
-            */}
-        <p>{this.state.message}</p>
         <p style={{ fontFamily: 'monospace', fontSize: '20px' }}>
-          streak: {this.state.streak}
+          count: {this.state.count}
         </p>
-        {/*
-        {this.state.cardArray.map((card, idx) => (
-          <animated.div
-            key={card}
-            style={{
-              position: "absolute",
-              ...springProps[idx],
-              visibility: springProps[idx].opacity.to((x) =>
-                x > 0 ? "visible" : "hidden"
-              ),
-            }}
-          >
-            <ResponsiveSetCard
-              value={card}
-              width={200}
-              background={this.state.cards[card].background}
-              active={false}
-            />
-          </animated.div>
-        ))}*/}
       </span>
     )
   }
 }
 
-export default CardDisplay
+export default Blitz
