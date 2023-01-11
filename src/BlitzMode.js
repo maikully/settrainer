@@ -324,7 +324,7 @@ class BlitzMode extends React.Component {
         </Modal>
         {this.state.status === 'inactive' && (
           <div>
-            <h3>You have 1 minute to find as many sets as you can.</h3>
+            <h3>You have 1 minute to match as many sets as you can.</h3>
             <h4>Every 10 sets, the difficulty will increase.</h4>
             <Button
               variant='contained'
