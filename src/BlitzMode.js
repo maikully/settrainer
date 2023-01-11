@@ -21,7 +21,7 @@ function getDeadTime () {
   let deadline = new Date()
 
   // adjust timer here
-  deadline.setSeconds(deadline.getSeconds() + 3)
+  deadline.setSeconds(deadline.getSeconds() + 60)
   return deadline
 }
 function getOptions (shuffledArray, n, d) {

@@ -89,7 +89,7 @@ function ResponsiveSymbol (props) {
       viewBox='0 0 500 750'
       width={props.size}
       height={2 * props.size}
-      strokeWidth={18}
+      strokeWidth={26}
     >
       <defs>
         <pattern id={props.id.toString() + props.color.toString() + props.shade.toString() + props.shape.toString()} patternUnits="userSpaceOnUse" width="10" height="25" patternTransform="rotate(45)">
