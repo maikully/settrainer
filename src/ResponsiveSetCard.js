@@ -78,7 +78,7 @@ function ResponsiveSymbol (props) {
         var fill = "transparent"
         break
     case 2:
-        var fill = 'url(#' + props.color.toString() + props.shade.toString() + ')'
+        var fill = 'url(#' + props.id.toString() + props.color.toString() + props.shade.toString() + props.shape.toString() + ')'
         //var fill = color
         break
     default:
@@ -94,10 +94,10 @@ function ResponsiveSymbol (props) {
       strokeWidth={18}
     >
       <defs>
-        <pattern id={props.color.toString() + props.shade.toString()} patternUnits="userSpaceOnUse" width="10" height="25" patternTransform="rotate(45)">
-			<line x1="0" y="0" x2="100" y2="0" stroke={color} stroke-width="20" />
+        <pattern id={props.id.toString() + props.color.toString() + props.shade.toString() + props.shape.toString()} patternUnits="userSpaceOnUse" width="10" height="25" patternTransform="rotate(45)">
+			<line x1="0" y="0" x2="100" y2="0" stroke={color} strokeWidth="20" />
 		</pattern>
-        <path id={props.shape} class='cls-1' d={finalCoords} />
+        <path id={props.shape} className='cls-1' d={finalCoords} />
       </defs>
       <use
         href={'#' + props.shape}
@@ -142,6 +142,7 @@ function ResponsiveSetCard (props) {
       {[...Array(number + 1)].map((_, i) => (
         <ResponsiveSymbol
           key={i}
+          id={props.id}
           color={color}
           shape={shape}
           shade={shade}

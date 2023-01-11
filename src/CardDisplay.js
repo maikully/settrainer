@@ -6,7 +6,13 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Button
+  Button,
+  Modal,
+  Box,
+  Typography,
+  TextField,
+  Backdrop,
+  Fade
 } from '@material-ui/core'
 import React, { useState } from 'react'
 
@@ -35,7 +41,17 @@ function conjugateCard (a, b) {
   return c
 }
 
-function getOptions (shuffledArray) {
+function match (s1, s2) {
+  var count = 0
+
+  for (let i = 0; i < s1.length; i++) {
+    if (s2[i] === s1[i]) count++
+  }
+
+  return count
+}
+function getOptions (shuffledArray, n, d) {
+  console.log(n)
   var cardOne = shuffledArray[0]
   var cardTwo = shuffledArray[1]
   var answer = conjugateCard(cardOne, cardTwo)
@@ -43,12 +59,25 @@ function getOptions (shuffledArray) {
   options.push(answer)
   for (let x = 2; x < shuffledArray.length; x++) {
     if (shuffledArray[x] !== answer) {
-      options.push(shuffledArray[x])
-      if (options.length === 5) {
+      if (d && match(shuffledArray[x], answer) >= d - 1) {
+        options.push(shuffledArray[x])
+      }
+      if (!d) {
+        options.push(shuffledArray[x])
+      }
+      if (options.length === n) {
         return options.sort((a, b) => 0.5 - Math.random())
       }
     }
   }
+  if (options.length < n) {
+    for (let x = 2; x < shuffledArray.length && options.length < n; x++) {
+      if (!options.includes(shuffledArray[x])) {
+        options.push(shuffledArray[x])
+      }
+    }
+  }
+  return options.sort((a, b) => 0.5 - Math.random())
 }
 class CardDisplay extends React.Component {
   constructor (props) {
@@ -57,20 +86,15 @@ class CardDisplay extends React.Component {
     const shuffledArray = array.sort((a, b) => 0.5 - Math.random())
     var cardOne = shuffledArray[0]
     var cardTwo = shuffledArray[1]
-    var options = getOptions(shuffledArray)
+    var options = getOptions(shuffledArray, 5, 1)
     var answer = conjugateCard(cardOne, cardTwo)
     let cardWidth
     if (window.screen.width < 500) {
-        cardWidth = window.screen.width / 3
-
-    }
-    else {
-
-        cardWidth = window.screen.width / 10
+      cardWidth = window.screen.width / 3
+    } else {
+      cardWidth = window.screen.width / 10
     }
 
-    console.log(cardWidth)
-    
     this.state = {
       number: 0,
       shape: 0,
@@ -84,9 +108,13 @@ class CardDisplay extends React.Component {
       options: options,
       message: 'select a card!',
       streak: 0,
-      cardWidth: cardWidth
+      cardWidth: cardWidth,
+      numberDisplay: 5,
+      settingsOpen: false,
+      difficulty: 1
     }
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleSettingsOpen = this.handleSettingsOpen.bind(this)
     this.handleSelection = this.handleSelection.bind(this)
     this.checkSet = this.checkSet.bind(this)
   }
@@ -96,7 +124,13 @@ class CardDisplay extends React.Component {
     )
     var cardOne = shuffledArray[0]
     var cardTwo = shuffledArray[1]
-    var options = getOptions(shuffledArray)
+    console.log(this.state.numberDisplay)
+    var options = getOptions(
+      shuffledArray,
+      this.state.numberDisplay,
+      this.state.difficulty
+    )
+    console.log(options)
     var answer = conjugateCard(cardOne, cardTwo)
     this.setState({
       shuffledArray: shuffledArray
@@ -135,6 +169,19 @@ class CardDisplay extends React.Component {
       this.setState({ message: 'Try again!' })
     }
   }
+  handleSettingsOpen () {
+    this.setState({ settingsOpen: !this.state.settingsOpen })
+  }
+  handleSettingsChange (x, e) {
+    if (x === 0) {
+      this.setState(
+        { numberDisplay: parseInt(e.target.value) },
+        this.resetBoard
+      )
+    } else if (x === 1) {
+      this.setState({ difficulty: parseInt(e.target.value) }, this.resetBoard)
+    }
+  }
   checkSet (a, b, c) {
     for (let i = 0; i < 4; i++) {
       if ((a.charAt(i) + b.charAt(i) + c.charAt(i)) % 3 !== 0) return false
@@ -145,14 +192,95 @@ class CardDisplay extends React.Component {
   render () {
     return (
       <span>
+        <Button
+          style={{ position: 'absolute', right: '5%', top: '2%' }}
+          onClick={this.handleSettingsOpen}
+        >
+          Settings
+        </Button>
+        <Modal
+          aria-labelledby='transition-modal-title'
+          aria-describedby='transition-modal-description'
+          open={this.state.settingsOpen}
+          onClose={this.handleSettingsOpen}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: 500
+          }}
+        >
+          <Fade in={this.state.settingsOpen}>
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 400,
+                bgcolor: 'background.paper',
+                border: '2px solid #000',
+                boxShadow: 24,
+                p: 4
+              }}
+            >
+              <Typography
+                id='modal-modal-title'
+                variant='h6'
+                component='h2'
+                style={{ color: 'white' }}
+              >
+                Settings
+              </Typography>
+              <br></br>
+              <Typography
+                style={{ color: 'white' }}
+                id='modal-modal-description'
+                sx={{ mt: 2 }}
+              >
+                Number of options to display:{' '}
+              </Typography>
+              <TextField
+                id='outlined-number'
+                type='number'
+                InputProps={{ inputProps: { min: 5, max: 15 } }}
+                value={this.state.numberDisplay}
+                onChange={e => this.handleSettingsChange(0, e)}
+                InputLabelProps={{
+                  shrink: true
+                }}
+              />
+              <br></br>
+              <br></br>
+              <Typography
+                style={{ color: 'white' }}
+                id='modal-modal-description'
+                sx={{ mt: 2 }}
+              >
+                Difficulty of options:{' '}
+              </Typography>
+              <TextField
+                id='outlined-number'
+                type='number'
+                InputProps={{ inputProps: { min: 1, max: 4 } }}
+                value={this.state.difficulty}
+                onChange={e => this.handleSettingsChange(1, e)}
+                InputLabelProps={{
+                  shrink: true
+                }}
+              />
+            </Box>
+          </Fade>
+        </Modal>
         <animated.div>
           <ResponsiveSetCard
+            id={0}
             value={this.state.cardOne}
             width={this.state.cardWidth}
             background={'#FFFDD0'}
             active={false}
           />
           <ResponsiveSetCard
+            id={1}
             value={this.state.cardTwo}
             width={this.state.cardWidth}
             background={'#FFFDD0'}
@@ -163,11 +291,29 @@ class CardDisplay extends React.Component {
         <div>
           <h4>which card completes the set?</h4>
         </div>
-        <span style={{ display: 'flex', width: window.screen.width, justifyContent: "center", flexWrap: "wrap" }}>
+        <span
+          style={{
+            display: 'flex',
+            width:
+              window.screen.width <= 500
+                ? window.screen.width
+                : window.screen.width / 1.75,
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+          }}
+        >
           {this.state.options.map((card, idx) => (
-            <Button onClick={() => this.handleSelection(card)}>
+            <Button
+              style={{
+                flex:
+                  window.screen.width <= 500
+                    ? '1 0 calc(35% - 10px)'
+                    : '1 0 calc(20% - 10px)'
+              }}
+              onClick={() => this.handleSelection(card)}
+            >
               <ResponsiveSetCard
-                id={idx}
+                id={1 + idx}
                 value={card}
                 width={this.state.cardWidth}
                 background={'#FFFDD0'}
@@ -264,8 +410,10 @@ class CardDisplay extends React.Component {
           Submit
         </Button>
             */}
-          <p>{this.state.message}</p>
-          <p style={{fontFamily:'monospace', fontSize:"20px"}}>streak: {this.state.streak}</p>
+        <p>{this.state.message}</p>
+        <p style={{ fontFamily: 'monospace', fontSize: '20px' }}>
+          streak: {this.state.streak}
+        </p>
         {/*
         {this.state.cardArray.map((card, idx) => (
           <animated.div
