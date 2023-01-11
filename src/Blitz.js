@@ -12,100 +12,20 @@ import {
   Typography,
   TextField,
   Backdrop,
-  Fade
+  Fade,
 } from '@material-ui/core'
 import React, { useState, useRef, useEffect } from 'react'
 import { checkSet, conjugateCard, generateCards, match } from './functions'
-const Timer = () => {
-  // We need ref in this, because we are dealing
-  // with JS setInterval to keep track of it and
-  // stop it when needed
-  const Ref = useRef(null)
 
-  // The state for our timer
-  const [timer, setTimer] = useState('00:00:00')
+function getDeadTime () {
+  let deadline = new Date()
 
-  const getTimeRemaining = e => {
-    const total = Date.parse(e) - Date.parse(new Date())
-    const seconds = Math.floor((total / 1000) % 60)
-    const minutes = Math.floor((total / 1000 / 60) % 60)
-    const hours = Math.floor((total / 1000 / 60 / 60) % 24)
-    return {
-      total,
-      hours,
-      minutes,
-      seconds
-    }
-  }
-
-  const startTimer = e => {
-    let { total, hours, minutes, seconds } = getTimeRemaining(e)
-    if (total >= 0) {
-      // update the timer
-      // check if less than 10 then we need to
-      // add '0' at the beginning of the variable
-      setTimer(
-        (hours > 9 ? hours : '0' + hours) +
-          ':' +
-          (minutes > 9 ? minutes : '0' + minutes) +
-          ':' +
-          (seconds > 9 ? seconds : '0' + seconds)
-      )
-    }
-  }
-
-  const clearTimer = e => {
-    // If you adjust it you should also need to
-    // adjust the Endtime formula we are about
-    // to code next
-    setTimer('00:01:00')
-
-    // If you try to remove this line the
-    // updating of timer Variable will be
-    // after 1000ms or 1sec
-    if (Ref.current) clearInterval(Ref.current)
-    const id = setInterval(() => {
-      startTimer(e)
-    }, 1000)
-    Ref.current = id
-  }
-
-  const getDeadTime = () => {
-    let deadline = new Date()
-
-    // This is where you need to adjust if
-    // you entend to add more time
-    deadline.setMinutes(deadline.getMinutes() + 1)
-    return deadline
-  }
-
-  // We can use useEffect so that when the component
-  // mount the timer will start as soon as possible
-
-  // We put empty array to act as componentDid
-  // mount only
-  useEffect(() => {
-    clearTimer(getDeadTime())
-  }, [])
-
-  // Another way to call the clearTimer() to start
-  // the countdown is via action event from the
-  // button first we create function to be called
-  // by the button
-  const onClickReset = () => {
-    clearTimer(getDeadTime())
-  }
-
-  return (
-    <div>
-      <h2>{timer}</h2>
-      <button onClick={onClickReset}>Reset</button>
-    </div>
-  )
+  // This is where you need to adjust if
+  // you entend to add more time
+  deadline.setSeconds(deadline.getSeconds() + 60)
+  return deadline
 }
-
 function getOptions (shuffledArray, n, d) {
-  console.log(n)
   var cardOne = shuffledArray[0]
   var cardTwo = shuffledArray[1]
   var answer = conjugateCard(cardOne, cardTwo)
@@ -134,6 +54,93 @@ function getOptions (shuffledArray, n, d) {
   return options.sort((a, b) => 0.5 - Math.random())
 }
 class Blitz extends React.Component {
+  timer = ({ onSwitch }) => {
+    // We need ref in this, because we are dealing
+    // with JS setInterval to keep track of it and
+    // stop it when needed
+    const Ref = useRef(null)
+
+    // The state for our timer
+    const [timer, setTimer] = useState('00:00:00')
+
+    const getTimeRemaining = e => {
+      const total = Date.parse(e) - Date.parse(new Date())
+      const seconds = Math.floor((total / 1000) % 60)
+      const minutes = Math.floor((total / 1000 / 60) % 60)
+      const hours = Math.floor((total / 1000 / 60 / 60) % 24)
+      return {
+        total,
+        hours,
+        minutes,
+        seconds
+      }
+    }
+
+    const runTimer = e => {
+      let { total, hours, minutes, seconds } = getTimeRemaining(e)
+      if (total >= 0) {
+        // update the timer
+        // check if less than 10 then we need to
+        // add '0' at the beginning of the variable
+        setTimer(
+          (hours > 9 ? hours : '0' + hours) +
+            ':' +
+            (minutes > 9 ? minutes : '0' + minutes) +
+            ':' +
+            (seconds > 9 ? seconds : '0' + seconds)
+        )
+      } else {
+        this.endGame()
+        clearTimer()
+      }
+    }
+
+    const clearTimer = () => {
+      // If you adjust it you should also need to
+      // adjust the Endtime formula we are about
+      // to code next
+      if (Ref.current) clearInterval(Ref.current)
+      setTimer('00:01:00')
+
+      // If you try to remove this line the
+      // updating of timer Variable will be
+      // after 1000ms or 1sec
+    }
+    function startTimer (e) {
+      if (Ref.current) clearInterval(Ref.current)
+      const id = setInterval(() => {
+        runTimer(e)
+      }, 1000)
+      Ref.current = id
+    }
+
+    // We can use useEffect so that when the component
+    // mount the timer will start as soon as possible
+
+    // We put empty array to act as componentDid
+    // mount only
+    useEffect(() => {
+      clearTimer()
+      startTimer(getDeadTime())
+    }, [])
+    useEffect(() => {
+      startTimer(getDeadTime())
+    }, [onSwitch])
+
+    // Another way to call the clearTimer() to start
+    // the countdown is via action event from the
+    // button first we create function to be called
+    // by the button
+    const onClickReset = () => {
+      clearTimer(getDeadTime())
+    }
+
+    return (
+      <div>
+        <h2>{timer}</h2>
+      </div>
+    )
+  }
   constructor (props) {
     super(props)
     const array = generateCards()
@@ -165,11 +172,16 @@ class Blitz extends React.Component {
       numberDisplay: 5,
       settingsOpen: false,
       difficulty: 1,
-      scores: []
+      scores: [],
+      status: 'inactive',
+      onSwitch: 0,
+      lockout: false,
     }
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSettingsOpen = this.handleSettingsOpen.bind(this)
     this.handleSelection = this.handleSelection.bind(this)
+    this.timer = this.timer.bind(this)
+    this.endGame = this.endGame.bind(this)
   }
   resetBoard = () => {
     const shuffledArray = this.state.cardArray.sort(
@@ -177,13 +189,11 @@ class Blitz extends React.Component {
     )
     var cardOne = shuffledArray[0]
     var cardTwo = shuffledArray[1]
-    console.log(this.state.numberDisplay)
     var options = getOptions(
       shuffledArray,
       this.state.numberDisplay,
       this.state.difficulty
     )
-    console.log(options)
     var answer = conjugateCard(cardOne, cardTwo)
     this.setState({
       shuffledArray: shuffledArray
@@ -196,7 +206,10 @@ class Blitz extends React.Component {
     this.setState({ shade: 0 })
     this.setState({ options: options })
     this.setState({ answer: answer })
-    this.setState({ count: this.state.count + 1 })
+  }
+  endGame = () => {
+    this.setState({ status: 'waiting' })
+    this.setState({ scores: [...this.state.scores, this.state.count] })
   }
 
   handleSubmit = () => {
@@ -213,13 +226,22 @@ class Blitz extends React.Component {
     }
   }
   handleSelection (card) {
-    console.log(card)
-    if (checkSet(card, this.state.cardOne, this.state.cardTwo)) {
-      this.setState({ message: 'Good job!' })
-      this.resetBoard()
-    } else {
-      this.setState({ streak: 0 })
-      this.setState({ message: 'Try again!' })
+    if (this.state.status === "active") {
+        if (checkSet(card, this.state.cardOne, this.state.cardTwo)) {
+          this.setState({ message: 'Good job!' })
+          if (this.state.count % 9 === 0 && this.state.count !== 0 && this.state.difficulty < 4) {
+            this.setState({difficulty: this.state.difficulty + 1})
+          }
+
+          this.setState({ count: this.state.count + 1 })
+          this.resetBoard()
+        } else {
+          this.setState({ streak: 0 })
+          this.setState({ message: 'Try again!' })
+          this.setState({lockout: true})
+          setTimeout(() => this.setState({lockout: false}), 1100)
+        }
+
     }
   }
   handleSettingsOpen () {
@@ -278,67 +300,104 @@ class Blitz extends React.Component {
               >
                 High Scores
               </Typography>
-              <ol>
-                {this.state.scores.length > 0 && this.state.scores.sort((a,b) => b-a).slice(0, 5).map((score, idx) => (
-                  <li>{score}</li>
-                ))}
+              <ol style={{color:'white'}}>
+                {this.state.scores.length > 0 &&
+                  this.state.scores
+                    .sort((a, b) => b - a)
+                    .slice(0, 5)
+                    .map((score, idx) => <li>{score}</li>)}
               </ol>
             </Box>
           </Fade>
         </Modal>
-        <Timer></Timer>
-        <animated.div>
-          <ResponsiveSetCard
-            id={0}
-            value={this.state.cardOne}
-            width={this.state.cardWidth}
-            background={'#FFFDD0'}
-            active={false}
-          />
-          <ResponsiveSetCard
-            id={1}
-            value={this.state.cardTwo}
-            width={this.state.cardWidth}
-            background={'#FFFDD0'}
-            active={false}
-          />
-        </animated.div>
-        <br></br>
-        <br></br>
-        <span
-          style={{
-            display: 'flex',
-            width:
-              window.screen.width <= 500
-                ? window.screen.width
-                : window.screen.width / 1.75,
-            justifyContent: 'center',
-            flexWrap: 'wrap'
-          }}
-        >
-          {this.state.options.map((card, idx) => (
+        {this.state.status === 'inactive' && (
+          <div>
+            <h3>You will have 1 minute to find as many sets as you can.</h3>
+            <h4>Every 10 sets, the difficulty will increase.</h4>
             <Button
-              style={{
-                flex:
-                  window.screen.width <= 500
-                    ? '1 0 calc(35% - 10px)'
-                    : '1 0 calc(20% - 10px)'
+              variant='contained'
+              color='primary'
+              onClick={() => {
+                this.setState({ status: 'active' })
               }}
-              onClick={() => this.handleSelection(card)}
             >
+              Start
+            </Button>
+          </div>
+        )}
+        {(this.state.status === 'active' ||
+          this.state.status === 'waiting') && (
+          <>
+            <this.timer onSwitch={this.state.onSwitch}></this.timer>
+            <animated.div>
               <ResponsiveSetCard
-                id={1 + idx}
-                value={card}
+                id={0}
+                value={this.state.cardOne}
                 width={this.state.cardWidth}
                 background={'#FFFDD0'}
+                active={false}
               />
-            </Button>
-          ))}
-        </span>
-        <br></br>
-        <p style={{ fontFamily: 'monospace', fontSize: '20px' }}>
-          count: {this.state.count}
-        </p>
+              <ResponsiveSetCard
+                id={1}
+                value={this.state.cardTwo}
+                width={this.state.cardWidth}
+                background={'#FFFDD0'}
+                active={false}
+              />
+            </animated.div>
+            <br></br>
+            <br></br>
+            <span
+              style={{
+                display: 'flex',
+                width:
+                  window.screen.width <= 500
+                    ? window.screen.width
+                    : window.screen.width / 1.75,
+                justifyContent: 'center',
+                flexWrap: 'wrap'
+              }}
+            >
+              {this.state.options.map((card, idx) => (
+                <Button
+                  style={{
+                    flex:
+                      window.screen.width <= 500
+                        ? '1 0 calc(35% - 10px)'
+                        : '1 0 calc(20% - 10px)'
+                  }}
+                  onClick={() => this.handleSelection(card)}
+                  disabled={this.state.lockout}
+                >
+                  <ResponsiveSetCard
+                    id={1 + idx}
+                    value={card}
+                    width={this.state.cardWidth}
+                    background={this.state.lockout ? '#cccaa1' : '#FFFDD0'}
+                  />
+                </Button>
+              ))}
+            </span>
+            <br></br>
+            <p style={{ fontFamily: 'monospace', fontSize: '20px' }}>
+              score: {this.state.count}
+            </p>
+            {this.state.status === 'waiting' && (
+              <Button
+                variant='contained'
+                color='primary'
+                onClick={() => {
+                  this.setState({ status: 'active' })
+                  this.setState({ count: 0 })
+                  this.setState({ onSwitch: 1 - this.state.onSwitch })
+                  this.resetBoard()
+                }}
+              >
+                Play Again
+              </Button>
+            )}
+          </>
+        )}{' '}
       </span>
     )
   }

@@ -26,9 +26,9 @@ On Safari, sometimes striped symbols don't appear properly.
 
 ### Todo:
 
-- [ ] add timer
-- [ ] add high scores
 - [ ] add multiplayer
 - [ ] best pivot card
 - [ ] only one set in 6 cards
 - [x] add difficulty levels
+- [x] add timer
+- [x] add high scores
